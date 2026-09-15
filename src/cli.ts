@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+import { readFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
 import { formatText } from "./report.js";
 import { run } from "./run.js";
 import {
-  DEFAULT_PROPS, DEFAULT_SCHEMES, DEFAULT_VIEWPORTS,
-  type BrowserName, type FailOn,
+  DEFAULT_SCHEMES, DEFAULT_VIEWPORTS,
+  type BrowserName, type FailOn, type RunOptions,
 } from "./types.js";
 
 const USAGE = `ui-assert <url> [options]
@@ -25,7 +26,11 @@ const USAGE = `ui-assert <url> [options]
   --json                    JSON report to stdout
   --out <dir>               failing-cell screenshots (default ./ui-assert-out)
   --fail-on error|warning|none   (default error)
+  --config <path>           JSON file with the same options in camelCase
+                            (ui-assert.config.json in the cwd is picked up automatically)
   --help`;
+
+const DEFAULT_CONFIG = "ui-assert.config.json";
 
 const OPTIONS = {
   scope: { type: "string" },
@@ -46,10 +51,25 @@ const OPTIONS = {
   json: { type: "boolean" },
   out: { type: "string" },
   "fail-on": { type: "string" },
+  config: { type: "string" },
   help: { type: "boolean" },
 } as const;
 
 const list = (v: string | undefined) => v?.split(",").map((s) => s.trim()).filter(Boolean);
+
+// Flags win over the config file, but an unset flag must not erase a config value.
+const defined = <T extends object>(o: T): Partial<T> =>
+  Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>;
+
+async function loadConfig(path: string | undefined): Promise<Partial<RunOptions>> {
+  try {
+    return JSON.parse(await readFile(path ?? DEFAULT_CONFIG, "utf8"));
+  } catch (err) {
+    // Only the implicit default may be missing; an explicit --config must exist.
+    if (!path && (err as NodeJS.ErrnoException).code === "ENOENT") return {};
+    throw new Error(`could not read config ${path ?? DEFAULT_CONFIG}: ${(err as Error).message}`);
+  }
+}
 
 export async function main(argv: string[]): Promise<number> {
   let values, positionals;
@@ -60,13 +80,26 @@ export async function main(argv: string[]): Promise<number> {
     return 2;
   }
 
-  if (values.help || !positionals[0]) {
+  if (values.help) {
     console.log(USAGE);
-    return values.help ? 0 : 1;
+    return 0;
   }
 
-  const report = await run({
-    url: positionals[0],
+  let config: Partial<RunOptions>;
+  try {
+    config = await loadConfig(values.config);
+  } catch (err) {
+    console.error((err as Error).message);
+    return 2;
+  }
+
+  const url = positionals[0] ?? config.url;
+  if (!url) {
+    console.log(USAGE);
+    return 1;
+  }
+
+  const flags = defined({
     scope: values.scope,
     viewports: list(values.viewports),
     schemes: list(values.schemes),
@@ -74,16 +107,18 @@ export async function main(argv: string[]): Promise<number> {
     browser: values.browser as BrowserName | undefined,
     wait: values.wait,
     tokenPrefix: values["token-prefix"],
-    props: list(values.props) ?? DEFAULT_PROPS,
-    ignore: list(values.ignore) ?? [],
+    props: list(values.props),
+    ignore: list(values.ignore),
     includeThirdParty: values["include-third-party"],
     strictTokens: values["strict-tokens"],
-    tokens: !values["no-tokens"],
-    layout: !values["no-layout"],
-    a11y: !values["no-a11y"],
+    tokens: values["no-tokens"] ? false : undefined,
+    layout: values["no-layout"] ? false : undefined,
+    a11y: values["no-a11y"] ? false : undefined,
     out: values.out,
     failOn: values["fail-on"] as FailOn | undefined,
   });
+
+  const report = await run({ ...config, ...flags, url });
 
   console.log(values.json ? JSON.stringify(report, null, 2) : formatText(report));
   return report.summary.passed ? 0 : 1;

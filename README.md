@@ -71,6 +71,20 @@ ui-assert <url> [options]
   --json                    JSON report to stdout
   --out <dir>               failing-cell screenshots (default ./ui-assert-out)
   --fail-on error|warning|none   (default error)
+  --config <path>           JSON file with the same options in camelCase
+```
+
+Flags that pile up are better kept in a `ui-assert.config.json` next to your `package.json`; it's read automatically, and anything you pass on the command line still wins:
+
+```json
+{
+  "url": "http://localhost:5173/",
+  "scope": "main",
+  "themeAttr": "data-theme",
+  "ignore": ["[data-agentation-root]"],
+  "tokenPrefix": "--",
+  "failOn": "warning"
+}
 ```
 
 The default properties are `color`, `background-color`, the four `border-*-color`s, `outline-color`, `fill`, `stroke`, `caret-color`, `text-decoration-color` and `accent-color`. Add `background-image` if you want gradients caught, or spacing properties if your tokens cover those too.

@@ -1,5 +1,7 @@
 import { execFile } from "node:child_process";
-import { rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -57,6 +59,27 @@ describe("cli", () => {
       "375x812",
     ]);
     expect(code).toBe(0);
+  });
+
+  it("reads options from a config file, with flags taking precedence", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ui-assert-"));
+    const config = join(dir, "ui-assert.config.json");
+    writeFileSync(
+      config,
+      JSON.stringify({ url: `${origin}/good.html`, viewports: ["400x600"], schemes: ["light", "dark"], a11y: false }),
+    );
+    const { code, stdout } = await cli(["--config", config, "--json", "--schemes", "light"]);
+    rmSync(dir, { recursive: true, force: true });
+    expect(code).toBe(0);
+    const report = JSON.parse(stdout);
+    expect(report.url).toContain("good.html");
+    expect(report.matrix).toEqual({ viewports: ["400x600"], schemes: ["light"] });
+    expect(report.a11y).toBeUndefined();
+  });
+
+  it("fails clearly when an explicit config file is missing", async () => {
+    const { code } = await cli([`${origin}/good.html`, "--config", "/nonexistent/ui-assert.json"]);
+    expect(code).toBe(2);
   });
 
   it("prints usage for --help", async () => {
