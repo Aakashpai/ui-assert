@@ -117,6 +117,31 @@ Dev-only overlays (an annotation toolbar, a devtools panel) tend to ship their o
 
 Storybook stories are just URLs: `ui-assert "http://localhost:6006/iframe.html?id=button--primary&viewMode=story" --scope "#storybook-root"`.
 
+## MCP server
+
+The same checks are available to an agent as an MCP tool, so it can verify its own work without you wiring up a hook. Add it to Claude Code with:
+
+```
+claude mcp add ui-assert -- npx -y -p ui-assert ui-assert-mcp
+```
+
+The `-p` is needed because the binary is called `ui-assert-mcp` but lives in the `ui-assert` package. The same thing in a `.mcp.json`, or Cursor's `mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "ui-assert": {
+      "command": "npx",
+      "args": ["-y", "-p", "ui-assert", "ui-assert-mcp"]
+    }
+  }
+}
+```
+
+If the package is already a dev dependency, `"command": "ui-assert-mcp"` with no args works too and skips the registry lookup.
+
+The server exposes one tool, `ui_assert`, taking the same options as the CLI in camelCase. It returns the text verdict you'd get on the command line, or the full JSON report with `format: "json"`. A FAIL comes back as a normal result the agent can read and act on, not an error; errors are reserved for a run that couldn't happen at all, such as a missing browser or a page that wouldn't load.
+
 ## Programmatic use
 
 ```ts
