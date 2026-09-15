@@ -1,0 +1,63 @@
+:root {
+  --color-text: #111111;
+  --color-bg: #ffffff;
+  --space-md: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #eeeeee;
+    --color-bg: #111111;
+  }
+}
+
+[data-theme="dark"] {
+  --color-text: #eeeeee;
+  --color-bg: #111111;
+}
+
+body {
+  margin: 0;
+  padding: var(--space-md);
+  font-family: system-ui, sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.card {
+  padding: var(--space-md);
+  background-color: var(--surface-missing);
+}
+
+.row {
+  padding: var(--space-md);
+  color: var(--gap-missing, #333333);
+}
+
+.danger {
+  color: #ff0000;
+}
+
+.nowrap {
+  white-space: nowrap;
+  width: 200px;
+  overflow-x: visible;
+}
+
+.offscreen {
+  position: absolute;
+  left: 100vw;
+  top: 0;
+}
+
+.icon-btn {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  line-height: 16px;
+}
+
+.muted {
+  color: #bbbbbb;
+  background-color: #ffffff;
+}

@@ -1,0 +1,31 @@
+{
+  "name": "ui-assert",
+  "version": "0.1.0",
+  "description": "Run a page in a real browser and get a compact, machine-readable verdict on tokens, layout and accessibility.",
+  "type": "module",
+  "bin": { "ui-assert": "dist/cli.js" },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "license": "MIT",
+  "author": "Aakash Pai",
+  "keywords": ["playwright", "accessibility", "design-tokens", "css", "layout", "axe", "cli"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "axe-core": "^4.10.3",
+    "playwright": "^1.56.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

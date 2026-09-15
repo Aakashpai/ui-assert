@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bad fixture</title>
+<link rel="stylesheet" href="/bad.css">
+</head>
+<body>
+  <main>
+    <h1 class="title">ui-assert bad fixture</h1>
+
+    <div class="card">Card using an undefined token for its background.</div>
+
+    <div class="row">Row using a missing token with a fallback.</div>
+
+    <p class="danger">Hardcoded red text.</p>
+
+    <p style="background: rgb(1, 2, 3); color: white">Inline hardcoded background.</p>
+
+    <div class="nowrap">Supercalifragilisticexpialidociousantidisestablishmentarianism</div>
+
+    <div class="offscreen">off</div>
+
+    <button class="icon-btn" aria-label="Close">x</button>
+
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="40" height="40">
+
+    <p class="muted">Low contrast text that axe should flag for colour contrast.</p>
+  </main>
+</body>
+</html>
