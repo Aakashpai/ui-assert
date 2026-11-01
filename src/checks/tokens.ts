@@ -52,6 +52,8 @@ function collect(o: TokensOptions): TokensResult {
   ]);
   const FUNCS = /\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\s*\(/i;
   const HEX = /#[0-9a-f]{3,8}\b/i;
+  // Fully transparent is the absence of a colour (what `transparent` compiles to), not a value a token should own.
+  const CLEAR = /^(rgba?\(\s*0[\s,]+0[\s,]+0\s*[,/]\s*0(\.0+)?%?\s*\)|#0{4}(0{4})?)$/;
 
   const scopeEl = (document.querySelector(o.scope) as HTMLElement | null) ?? document.body;
 
@@ -133,7 +135,7 @@ function collect(o: TokensOptions): TokensResult {
 
   function isLiteral(value: string): boolean {
     const v = value.trim().toLowerCase();
-    if (!v || KEYWORDS.has(v)) return false;
+    if (!v || KEYWORDS.has(v) || CLEAR.test(v)) return false;
     if (HEX.test(v) || FUNCS.test(v)) return true;
     return v.split(/[\s,()/]+/).some((w) => NAMED.has(w));
   }

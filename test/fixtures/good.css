@@ -43,7 +43,7 @@ body {
   min-width: 44px;
   min-height: 44px;
   padding: 0 var(--space-md);
-  border: 0;
+  border: 1px solid rgba(0, 0, 0, 0);
   background-color: var(--color-accent-bg);
   color: var(--color-accent-text);
 }

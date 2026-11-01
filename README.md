@@ -1,5 +1,7 @@
 # ui-assert
 
+<img src="docs/demo.png" alt="ui-assert output for a page with an undefined token, hard-coded colours, horizontal overflow, a tiny tap target and a missing alt text" width="100%" />
+
 Point it at a running page and it tells you, in a few lines of text, whether the UI is actually right: which colours bypass your design tokens, which tokens are referenced but never defined, what overflows or gets clipped at each viewport, which tap targets are too small, and what axe finds. It exits non-zero when something is wrong.
 
 It exists because coding agents can build UI but can't prove it. Screenshots cost a fortune in tokens and still leave the agent guessing, linters never see the rendered page, and pixel diffs say *that* something changed, not *what's wrong*. `ui-assert` gives an agent, a CI job, or a person one call that answers "is this fine?" with reasons.
